@@ -1,2 +1,34 @@
-©êe£!¢´{›=¨²‰éºÈ[­©Ü…ë&j)ğ¢¹–ŒŠÊZµÈiz¹¢²È¨Ç(×§¶ÊŞiÚZë0®+^‰Ûh‘éğ®+^r‰ÜººŞÌ ®‹©¥¨±Æ§qébšè‚·¬²Úîz:±×©–Œø«¢yÙÚ™è"¶›¥¨²êå²×©±×©–Œ¦z{hºÚn¶ÊZë«–»§²‰înéíºV­zËlµêl©
-œ’‹­ºÇ¬iËb¢{?rœ’‹­¿‰Ú™à¨ø º·j¬ºÇ¬iËb¢{?r‰ßŠ«z– zËù©R™hiÛ"µë¬zÆœ¶*'³û©–†¥¨±ªí‰öœ¶ığŠØijØgjgƒz™hÊ']z™hÊg§¶ë±§-Š‰ìı×©–Œ©j¬¿
+name: Deploy GitHub Pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Configure Pages
+        uses: actions/configure-pages@v5
+      - name: Upload site
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: .
+      - name: Deploy
+        id: deployment
+        uses: actions/deploy-pages@v4
