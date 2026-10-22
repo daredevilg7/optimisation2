@@ -50,6 +50,19 @@ function draw(){
  const co=frame('coordinates',0,s.length-1,mn-pd,mx+pd,'Номер шага','x₁, x₂');co.line(s.map((p,i)=>[i,p.x]),blue);co.line(s.map((p,i)=>[i,p.y]),terra);co.dot(stepIndex,p.x,blue);co.dot(stepIndex,p.y,terra);
  const se=frame('section',-120,30,-130,40,'x₁','f(x₁, 0)');se.line(Array.from({length:200},(_,i)=>{const x=-120+150*i/199;return [x,Lab.objective([x,0])];}),blue);se.dot(1,Lab.objective([1,0]),terra);
  const ra=frame('ray',0,10,-130,10,'t','f(x(t))');ra.line([[0,1+Math.exp(.01)],[10,1+Math.exp(.01)-124]],blue);
+ drawSurface3d();
+}
+function drawSurface3d(){
+ const el=$('surface-3d');if(!el||!window.Plotly||!results)return;
+ const r=results[method],s=series(),shown=s.slice(0,stepIndex+1),coords=s.map(p=>[p.x,p.y]);
+ const loX=Math.min(...coords.map(p=>p[0])),hiX=Math.max(...coords.map(p=>p[0])),loY=Math.min(...coords.map(p=>p[1])),hiY=Math.max(...coords.map(p=>p[1]));
+ const padX=Math.max(2,(hiX-loX)*.16),padY=Math.max(2,(hiY-loY)*.16),xmin=loX-padX,xmax=hiX+padX,ymin=loY-padY,ymax=hiY+padY;
+ const lin=(a,b,n)=>Array.from({length:n},(_,i)=>a+(b-a)*i/(n-1)),xs=lin(xmin,xmax,34),ys=lin(ymin,ymax,34);
+ const z=(x,y)=>Lab.objective([x,y]);
+ const surface={type:'surface',x:xs,y:ys,z:ys.map(y=>xs.map(x=>z(x,y))),colorscale:[[0,'#dbe8e1'],[.45,'#8cb6aa'],[1,'#245e70']],opacity:.83,showscale:false,hovertemplate:'x₁=%{x:.3f}<br>x₂=%{y:.3f}<br>f=%{z:.5f}<extra>Поверхность</extra>'};
+ const trail={type:'scatter3d',mode:'lines+markers',x:shown.map(p=>p.x),y:shown.map(p=>p.y),z:shown.map(p=>p.f),line:{color:'#b75d41',width:6},marker:{size:2,color:'#b75d41'},name:'Траектория',hovertemplate:'Шаг %{pointNumber}<br>x₁=%{x:.4f}<br>x₂=%{y:.4f}<br>f=%{z:.6f}<extra></extra>'};
+ const current=s[stepIndex],marker={type:'scatter3d',mode:'markers',x:[current.x],y:[current.y],z:[current.f],marker:{size:7,color:'#f0bd45',line:{color:'#26343b',width:2}},name:'Текущий шаг',hovertemplate:'Шаг '+stepIndex+'<br>x₁=%{x:.4f}<br>x₂=%{y:.4f}<br>f=%{z:.6f}<extra></extra>'};
+ Plotly.react(el,[surface,trail,marker],{margin:{l:0,r:0,t:8,b:0},paper_bgcolor:'#fff',plot_bgcolor:'#fff',showlegend:true,legend:{orientation:'h',x:0,y:1.02},scene:{uirevision:'function-surface',xaxis:{title:'x₁',range:[xmin,xmax],backgroundcolor:'#f5f6f3',gridcolor:'#d9ddd9'},yaxis:{title:'x₂',range:[ymin,ymax],backgroundcolor:'#f5f6f3',gridcolor:'#d9ddd9'},zaxis:{title:'f(x₁, x₂)',backgroundcolor:'#f5f6f3',gridcolor:'#d9ddd9'},camera:{eye:{x:1.55,y:1.55,z:1.15}}}},{responsive:true,displaylogo:false,scrollZoom:true});
 }
 function render(){
  stop();const r=results[method],s=series();stepIndex=s.length-1;$('stepper').max=s.length-1;
